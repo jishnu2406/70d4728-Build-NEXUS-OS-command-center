@@ -80,7 +80,7 @@ test.describe("fresh MNC OS", () => {
     await expect(page.getByText("Orion Global tenant is registered.")).toBeVisible();
   });
 
-  test("launch unlocks live projects and employees", async ({ page }) => {
+  test("launch unlocks live workspace operations", async ({ page }) => {
     await page.goto("/onboarding?step=identity");
     await page.getByLabel("Company name").fill("Nova Build");
     await page.getByLabel("Company type").selectOption("Architecture");
@@ -124,6 +124,39 @@ test.describe("fresh MNC OS", () => {
     await page.getByPlaceholder("Role").fill("Project Manager");
     await page.getByRole("button", { name: "Add employee to directory", exact: true }).click();
     await expect(page.getByText("Ananya Rao")).toBeVisible();
+
+    await page.goto("/assets");
+    await page.getByPlaceholder("Asset name").fill("Brand Guidelines");
+    await page.getByPlaceholder("Category").fill("Brand");
+    await page.getByPlaceholder("Owner").fill("Ananya Rao");
+    await page.getByPlaceholder("Source").fill("Drive");
+    await page.getByRole("button", { name: "Add asset to library", exact: true }).click();
+    await expect(page.getByText("Brand Guidelines")).toBeVisible();
+
+    await page.goto("/finance");
+    await page.getByPlaceholder("Invoice client").fill("Nova Holdings");
+    await page.getByPlaceholder(/Invoice amount/).fill("500000");
+    await page.locator('input[type="date"]').fill("2026-08-01");
+    await page.getByRole("button", { name: "Add invoice", exact: true }).click();
+    await expect(page.getByText("Open invoices")).toBeVisible();
+
+    await page.goto("/client-portal");
+    await page.getByPlaceholder("Client name").fill("Nova Holdings");
+    await page.getByPlaceholder("Contact person").fill("Priya Menon");
+    await page.getByPlaceholder("Client email").fill("priya@nova.test");
+    await page.getByPlaceholder("Visible project").fill("HQ Renovation");
+    await page.getByRole("button", { name: "Add client portal", exact: true }).click();
+    await expect(page.getByText("Priya Menon")).toBeVisible();
+
+    await page.goto("/intelligence");
+    await page.getByPlaceholder("Agent name").fill("Proposal Agent");
+    await page.getByPlaceholder("Agent purpose").fill("Draft client proposals");
+    await page.getByPlaceholder(/Budget/).fill("5000");
+    await page.getByRole("button", { name: "Add AI agent", exact: true }).click();
+    await expect(page.getByText("Proposal Agent")).toBeVisible();
+
+    await page.goto("/");
+    await expect(page.getByText("1 invoice open")).toBeVisible();
   });
 
   test("module primary actions navigate to setup", async ({ page }) => {

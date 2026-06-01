@@ -54,6 +54,37 @@ export type WorkspaceEmployee = {
   location: string;
 };
 
+export type WorkspaceAsset = {
+  id: string;
+  name: string;
+  category: string;
+  owner: string;
+  source: string;
+};
+
+export type WorkspaceInvoice = {
+  id: string;
+  client: string;
+  amount: string;
+  dueDate: string;
+  status: string;
+};
+
+export type WorkspaceClient = {
+  id: string;
+  name: string;
+  contact: string;
+  email: string;
+  project: string;
+};
+
+export type WorkspaceAiAgent = {
+  id: string;
+  name: string;
+  purpose: string;
+  budget: string;
+};
+
 type WorkspaceState = {
   profile: WorkspaceProfile;
   team: WorkspaceTeam;
@@ -64,6 +95,10 @@ type WorkspaceState = {
   launchedAt?: string;
   projects: WorkspaceProject[];
   employees: WorkspaceEmployee[];
+  assets: WorkspaceAsset[];
+  invoices: WorkspaceInvoice[];
+  clients: WorkspaceClient[];
+  aiAgents: WorkspaceAiAgent[];
   lastUpdatedAt?: string;
   updateProfile: (profile: Partial<WorkspaceProfile>) => void;
   updateTeam: (team: Partial<WorkspaceTeam>) => void;
@@ -75,6 +110,10 @@ type WorkspaceState = {
   launchWorkspace: () => void;
   addProject: (project: Omit<WorkspaceProject, "id" | "status">) => void;
   addEmployee: (employee: Omit<WorkspaceEmployee, "id">) => void;
+  addAsset: (asset: Omit<WorkspaceAsset, "id">) => void;
+  addInvoice: (invoice: Omit<WorkspaceInvoice, "id" | "status">) => void;
+  addClient: (client: Omit<WorkspaceClient, "id">) => void;
+  addAiAgent: (agent: Omit<WorkspaceAiAgent, "id">) => void;
   resetWorkspace: () => void;
 };
 
@@ -123,6 +162,10 @@ const freshWorkspace = {
   launchedAt: undefined,
   projects: [] as WorkspaceProject[],
   employees: [] as WorkspaceEmployee[],
+  assets: [] as WorkspaceAsset[],
+  invoices: [] as WorkspaceInvoice[],
+  clients: [] as WorkspaceClient[],
+  aiAgents: [] as WorkspaceAiAgent[],
   lastUpdatedAt: undefined,
 };
 
@@ -211,6 +254,51 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           ],
           lastUpdatedAt: stamp(),
         })),
+      addAsset: (asset) =>
+        set((state) => ({
+          assets: [
+            ...state.assets,
+            {
+              id: crypto.randomUUID(),
+              ...asset,
+            },
+          ],
+          lastUpdatedAt: stamp(),
+        })),
+      addInvoice: (invoice) =>
+        set((state) => ({
+          invoices: [
+            ...state.invoices,
+            {
+              id: crypto.randomUUID(),
+              status: "Open",
+              ...invoice,
+            },
+          ],
+          lastUpdatedAt: stamp(),
+        })),
+      addClient: (client) =>
+        set((state) => ({
+          clients: [
+            ...state.clients,
+            {
+              id: crypto.randomUUID(),
+              ...client,
+            },
+          ],
+          lastUpdatedAt: stamp(),
+        })),
+      addAiAgent: (agent) =>
+        set((state) => ({
+          aiAgents: [
+            ...state.aiAgents,
+            {
+              id: crypto.randomUUID(),
+              ...agent,
+            },
+          ],
+          lastUpdatedAt: stamp(),
+        })),
       resetWorkspace: () => set({ ...freshWorkspace }),
     }),
     {
@@ -225,6 +313,10 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         launchedAt,
         projects,
         employees,
+        assets,
+        invoices,
+        clients,
+        aiAgents,
         lastUpdatedAt,
       }) => ({
         profile,
@@ -236,6 +328,10 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         launchedAt,
         projects,
         employees,
+        assets,
+        invoices,
+        clients,
+        aiAgents,
         lastUpdatedAt,
       }),
     },

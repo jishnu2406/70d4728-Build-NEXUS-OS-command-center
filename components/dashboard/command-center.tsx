@@ -67,19 +67,24 @@ export function CommandCenter() {
   const launchedAt = useWorkspaceStore((state) => state.launchedAt);
   const projects = useWorkspaceStore((state) => state.projects);
   const employees = useWorkspaceStore((state) => state.employees);
+  const assets = useWorkspaceStore((state) => state.assets);
+  const invoices = useWorkspaceStore((state) => state.invoices);
+  const clients = useWorkspaceStore((state) => state.clients);
+  const aiAgents = useWorkspaceStore((state) => state.aiAgents);
   const workspaceName = workspaceDisplayName(profile);
   const progress = workspaceProgress(completedSteps);
   const teamCount = workspaceTeamCount(team);
   const isLive = workspaceIsLive(launchedAt, completedSteps);
   const peopleTotal = teamCount + employees.length;
   const projectStatus = projects.length ? String(projects.length) : imports.projectSource ? "Ready" : "0";
-  const assetStatus = imports.assetSource || imports.knowledgeSource ? "Connected" : "0";
-  const aiStatus = enabledModules.includes("AI layer") ? "Enabled" : "Off";
+  const assetStatus = assets.length ? String(assets.length) : imports.assetSource || imports.knowledgeSource ? "Connected" : "0";
+  const aiStatus = aiAgents.length ? `${aiAgents.length} agent${aiAgents.length === 1 ? "" : "s"}` : enabledModules.includes("AI layer") ? "Enabled" : "Off";
   const moduleStats = [
     { label: "Projects", value: projectStatus, helper: projects[0]?.name || imports.projectSource || "Create or import projects" },
     { label: "Team", value: String(peopleTotal), helper: employees[0]?.department || team.defaultRole || "Invite users and assign roles" },
-    { label: "Assets", value: assetStatus, helper: imports.assetSource || "Upload files and templates" },
-    { label: "AI", value: aiStatus, helper: launch.aiBudget ? `${profile.currency || "$"} ${launch.aiBudget} budget` : "Configure AI rules" },
+    { label: "Assets", value: assetStatus, helper: assets[0]?.category || imports.assetSource || "Upload files and templates" },
+    { label: "Clients", value: String(clients.length), helper: invoices.length ? `${invoices.length} invoice${invoices.length === 1 ? "" : "s"} open` : "Invite clients and set visibility" },
+    { label: "AI", value: aiStatus, helper: aiAgents[0]?.purpose || (launch.aiBudget ? `${profile.currency || "$"} ${launch.aiBudget} budget` : "Configure AI rules") },
   ];
 
   return (
