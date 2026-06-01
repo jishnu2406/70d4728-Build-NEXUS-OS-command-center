@@ -5,15 +5,37 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useWorkspaceStore, workspaceDisplayName } from "@/stores/workspace-store";
 
 export function IntelligenceModule() {
+  const profile = useWorkspaceStore((state) => state.profile);
+  const enabledModules = useWorkspaceStore((state) => state.enabledModules);
+  const imports = useWorkspaceStore((state) => state.imports);
+  const launch = useWorkspaceStore((state) => state.launch);
+  const workspaceName = workspaceDisplayName(profile);
+  const aiEnabled = enabledModules.includes("AI layer") || Boolean(launch.aiBudget);
+  const aiCards = [
+    [Gauge, "AI spend", `${profile.currency || "$"}0`],
+    [BrainCircuit, "Indexed chunks", imports.knowledgeSource ? "Ready" : "0"],
+    [MessageSquareText, "Conversations", "0"],
+    [FileText, "Reports drafted", "0"],
+  ];
+
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
       <EmptyState
         icon={BrainCircuit}
         eyebrow="NEXUS Mind"
-        title="AI is off until this MNC configures its own keys and rules."
-        description="No preset prompts, documents, agents, or historical context are shipped. Connect model providers, budgets, data sources, and compliance rules per tenant."
+        title={
+          aiEnabled
+            ? `NEXUS Mind is prepared for ${workspaceName}.`
+            : "AI is off until this MNC configures its own keys and rules."
+        }
+        description={
+          aiEnabled
+            ? `Budget: ${launch.aiBudget || "Not capped yet"}. Knowledge source: ${imports.knowledgeSource || "Not linked yet"}. Tenant memory starts only from this MNC's data.`
+            : "No preset prompts, documents, agents, or historical context are shipped. Connect model providers, budgets, data sources, and compliance rules per tenant."
+        }
         action="Configure AI"
         actionHref="/onboarding?step=ai"
         secondary={
@@ -27,12 +49,7 @@ export function IntelligenceModule() {
       />
 
       <section className="grid gap-4 md:grid-cols-4">
-        {[
-          [Gauge, "AI spend", "$0"],
-          [BrainCircuit, "Indexed chunks", "0"],
-          [MessageSquareText, "Conversations", "0"],
-          [FileText, "Reports drafted", "0"],
-        ].map(([Icon, label, value]) => (
+        {aiCards.map(([Icon, label, value]) => (
           <Card key={String(label)} className="rounded-[24px]">
             <Icon className="mb-4 h-5 w-5 text-accent-2" />
             <p className="text-xs uppercase tracking-[0.12em] text-muted">{String(label)}</p>
@@ -43,9 +60,11 @@ export function IntelligenceModule() {
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <Card className="rounded-[24px]">
-          <CardHeader title="Autonomous agents" eyebrow="Not configured" />
+          <CardHeader title="Autonomous agents" eyebrow={aiEnabled ? "Prepared" : "Not configured"} />
           <div className="rounded-2xl border border-dashed border-border bg-panel/50 p-10 text-center text-sm text-muted">
-            Agents appear here after the tenant defines schedules, triggers, permissions, and budgets.
+            {aiEnabled
+              ? `Ready to create agents under ${workspaceName}'s permissions.`
+              : "Agents appear here after the tenant defines schedules, triggers, permissions, and budgets."}
           </div>
         </Card>
 

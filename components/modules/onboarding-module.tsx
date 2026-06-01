@@ -19,6 +19,15 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { setupSteps } from "@/lib/data";
+import {
+  type SetupStepId,
+  type WorkspaceImports,
+  type WorkspaceLaunch,
+  type WorkspaceProfile,
+  type WorkspaceTeam,
+  useWorkspaceStore,
+  workspaceProgress,
+} from "@/stores/workspace-store";
 
 type FieldControl = {
   key: string;
@@ -40,7 +49,7 @@ type ToggleControl = {
 type SetupControl = FieldControl | ToggleControl;
 
 type StepPlan = {
-  id: string;
+  id: SetupStepId;
   routeKey: string;
   aliases: string[];
   cardAction: string;
@@ -256,21 +265,6 @@ const stepPlans: StepPlan[] = [
   },
 ];
 
-const initialFieldValues: Record<string, string> = {
-  brandColor: "#6c63ff",
-  companyType: "",
-  currency: "",
-  defaultRole: "",
-  projectSource: "",
-  region: "",
-  ssoProvider: "",
-  twoFactor: "",
-};
-
-const initialToggleValues: Record<string, string[]> = {
-  enabledModules: [],
-};
-
 function resolveStepIndex(stepKey?: string) {
   if (!stepKey) {
     return 0;
@@ -284,19 +278,25 @@ function resolveStepIndex(stepKey?: string) {
   return index >= 0 ? index : 0;
 }
 
-function isFieldControl(control: SetupControl): control is FieldControl {
-  return control.type !== "toggles";
-}
-
 export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }) {
   const initialStep = useMemo(() => resolveStepIndex(initialStepKey), [initialStepKey]);
   const [activeStep, setActiveStep] = useState(initialStep);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [fieldValues, setFieldValues] = useState<Record<string, string>>(initialFieldValues);
-  const [toggleValues, setToggleValues] = useState<Record<string, string[]>>(initialToggleValues);
   const [notice, setNotice] = useState(stepPlans[initialStep].helper);
+  const profile = useWorkspaceStore((state) => state.profile);
+  const team = useWorkspaceStore((state) => state.team);
+  const enabledModules = useWorkspaceStore((state) => state.enabledModules);
+  const imports = useWorkspaceStore((state) => state.imports);
+  const launch = useWorkspaceStore((state) => state.launch);
+  const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const updateProfile = useWorkspaceStore((state) => state.updateProfile);
+  const updateTeam = useWorkspaceStore((state) => state.updateTeam);
+  const setEnabledModules = useWorkspaceStore((state) => state.setEnabledModules);
+  const updateImports = useWorkspaceStore((state) => state.updateImports);
+  const updateLaunch = useWorkspaceStore((state) => state.updateLaunch);
+  const completeStep = useWorkspaceStore((state) => state.completeStep);
+  const clearStep = useWorkspaceStore((state) => state.clearStep);
 
-  const progress = Math.round((completedSteps.length / stepPlans.length) * 100);
+  const progress = workspaceProgress(completedSteps);
   const activePlan = stepPlans[activeStep];
   const ActiveIcon = icons[activeStep] ?? Building2;
   const selectedStep = setupSteps[activeStep];
@@ -309,19 +309,43 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
     window.history.replaceState(null, "", `/onboarding?step=${plan.routeKey}`);
   }
 
+  function getFieldValue(key: string) {
+    const values: Record<string, string> = { ...profile, ...team, ...imports, ...launch };
+
+    return values[key] ?? "";
+  }
+
   function updateField(key: string, value: string) {
-    setFieldValues((current) => ({ ...current, [key]: value }));
+    if (key in profile) {
+      updateProfile({ [key]: value } as Partial<WorkspaceProfile>);
+      return;
+    }
+
+    if (key in team) {
+      updateTeam({ [key]: value } as Partial<WorkspaceTeam>);
+      return;
+    }
+
+    if (key in imports) {
+      updateImports({ [key]: value } as Partial<WorkspaceImports>);
+      return;
+    }
+
+    if (key in launch) {
+      updateLaunch({ [key]: value } as Partial<WorkspaceLaunch>);
+    }
   }
 
   function toggleOption(key: string, option: string) {
-    setToggleValues((current) => {
-      const selected = current[key] ?? [];
-      const nextSelected = selected.includes(option)
-        ? selected.filter((item) => item !== option)
-        : [...selected, option];
+    if (key !== "enabledModules") {
+      return;
+    }
 
-      return { ...current, [key]: nextSelected };
-    });
+    const nextSelected = enabledModules.includes(option)
+      ? enabledModules.filter((item) => item !== option)
+      : [...enabledModules, option];
+
+    setEnabledModules(nextSelected);
   }
 
   function missingControls(plan: StepPlan) {
@@ -332,16 +356,12 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
         }
 
         if (control.type === "toggles") {
-          return !(toggleValues[control.key] ?? []).length;
+          return control.key === "enabledModules" && !enabledModules.length;
         }
 
-        return !fieldValues[control.key]?.trim();
+        return !getFieldValue(control.key).trim();
       })
       .map((control) => control.label);
-  }
-
-  function markCompleted(index: number) {
-    setCompletedSteps((current) => (current.includes(index) ? current : [...current, index]));
   }
 
   function runStepAction(index = activeStep) {
@@ -351,7 +371,11 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
     setActiveStep(index);
     window.history.replaceState(null, "", `/onboarding?step=${plan.routeKey}`);
 
-    if (index === stepPlans.length - 1 && completedSteps.length < stepPlans.length - 1) {
+    const readyForLaunch = stepPlans
+      .slice(0, -1)
+      .every((step) => completedSteps.includes(step.id));
+
+    if (index === stepPlans.length - 1 && !readyForLaunch) {
       setNotice("Finish identity, team, modules, and imports before final launch review.");
       return;
     }
@@ -361,32 +385,14 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
       return;
     }
 
-    markCompleted(index);
+    completeStep(plan.id);
     setNotice(`${plan.completeLabel}. ${plan.outcome}`);
   }
 
   function resetStep(index = activeStep) {
     const plan = stepPlans[index];
-    const resetFields = plan.controls.filter(isFieldControl).map((control) => control.key);
-    const resetToggles = plan.controls
-      .filter((control): control is ToggleControl => control.type === "toggles")
-      .map((control) => control.key);
 
-    setFieldValues((current) => {
-      const next = { ...current };
-      resetFields.forEach((key) => {
-        next[key] = initialFieldValues[key] ?? "";
-      });
-      return next;
-    });
-    setToggleValues((current) => {
-      const next = { ...current };
-      resetToggles.forEach((key) => {
-        next[key] = [];
-      });
-      return next;
-    });
-    setCompletedSteps((current) => current.filter((item) => item !== index));
+    clearStep(plan.id);
     setNotice(`${setupSteps[index].title} has been cleared for a fresh setup.`);
   }
 
@@ -417,7 +423,7 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
           {setupSteps.map((step, index) => {
             const Icon = icons[index] ?? Building2;
             const plan = stepPlans[index];
-            const complete = completedSteps.includes(index);
+            const complete = completedSteps.includes(plan.id);
             const active = activeStep === index;
             const missing = missingControls(plan).length;
 
@@ -497,7 +503,7 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
           <div className="space-y-3">
             {activePlan.controls.map((control) => {
               if (control.type === "toggles") {
-                const selected = toggleValues[control.key] ?? [];
+                const selected = control.key === "enabledModules" ? enabledModules : [];
 
                 return (
                   <div key={control.key} className="rounded-2xl border border-border bg-panel/70 p-3">
@@ -542,7 +548,7 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
                   </span>
                   {control.type === "select" ? (
                     <select
-                      value={fieldValues[control.key] ?? ""}
+                      value={getFieldValue(control.key)}
                       onChange={(event) => updateField(control.key, event.target.value)}
                       className="focus-ring h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-text"
                     >
@@ -558,18 +564,18 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
                       <input
                         aria-label={control.label}
                         type="color"
-                        value={fieldValues[control.key] ?? "#6c63ff"}
+                        value={getFieldValue(control.key) || "#6c63ff"}
                         onChange={(event) => updateField(control.key, event.target.value)}
                         className="h-10 w-14 rounded-xl border border-border bg-surface p-1"
                       />
                       <span className="text-sm text-muted">
-                        {fieldValues[control.key] ?? "#6c63ff"}
+                        {getFieldValue(control.key) || "#6c63ff"}
                       </span>
                     </div>
                   ) : (
                     <input
                       type={control.type}
-                      value={fieldValues[control.key] ?? ""}
+                      value={getFieldValue(control.key)}
                       onChange={(event) => updateField(control.key, event.target.value)}
                       placeholder={control.placeholder}
                       className="focus-ring h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-text placeholder:text-muted"

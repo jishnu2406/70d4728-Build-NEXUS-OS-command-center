@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProjectPhase } from "@/lib/types";
+import { useWorkspaceStore, workspaceDisplayName } from "@/stores/workspace-store";
 
 const phases: ProjectPhase[] = [
   "Concept",
@@ -25,13 +26,27 @@ const projectViews = [
 ];
 
 export function ProjectWorkspace() {
+  const profile = useWorkspaceStore((state) => state.profile);
+  const imports = useWorkspaceStore((state) => state.imports);
+  const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const workspaceName = workspaceDisplayName(profile);
+  const hasProjectPlan = Boolean(imports.projectSource || completedSteps.includes("data"));
+
   return (
     <div className="mx-auto flex max-w-[1500px] flex-col gap-5">
       <EmptyState
         icon={FolderKanban}
         eyebrow="Projects"
-        title="Create the first project structure for this MNC."
-        description="Start clean with no imported demo work. Add project types, phases, approval gates, client visibility, budgets, and templates that match this company."
+        title={
+          hasProjectPlan
+            ? `${workspaceName} project workspace is ready for intake.`
+            : "Create the first project structure for this MNC."
+        }
+        description={
+          hasProjectPlan
+            ? `Project source: ${imports.projectSource || "Manual setup"}. Add project types, phases, approval gates, client visibility, budgets, and templates that match this company.`
+            : "Start clean with no imported demo work. Add project types, phases, approval gates, client visibility, budgets, and templates that match this company."
+        }
         action="Create first project"
         actionHref="/onboarding?step=first-project"
         secondary={
@@ -68,11 +83,13 @@ export function ProjectWorkspace() {
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-semibold">{phase}</p>
                   <span className="rounded-full border border-border px-2 py-1 text-xs text-muted">
-                    0
+                    {phase === "Concept" && hasProjectPlan ? 1 : 0}
                   </span>
                 </div>
                 <div className="flex h-[245px] items-center justify-center rounded-2xl border border-dashed border-border bg-panel/40 p-5 text-center text-sm leading-6 text-muted">
-                  Drop future projects here after setup.
+                  {phase === "Concept" && hasProjectPlan
+                    ? `Project intake prepared from ${imports.projectSource || "manual setup"}.`
+                    : "Drop future projects here after setup."}
                 </div>
               </div>
             ))}

@@ -31,6 +31,11 @@ import { activeSession } from "@/lib/permissions";
 import { notifications, organization } from "@/lib/data";
 import { cn, initials } from "@/lib/utils";
 import { usePreferencesStore } from "@/stores/preferences-store";
+import {
+  useWorkspaceStore,
+  workspaceDisplayName,
+  workspaceProgress,
+} from "@/stores/workspace-store";
 
 const navigation = [
   { label: "Command", href: "/", icon: LayoutDashboard, group: "Command" },
@@ -53,6 +58,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const aiPanelOpen = usePreferencesStore((state) => state.aiPanelOpen);
   const toggleSidebar = usePreferencesStore((state) => state.toggleSidebar);
   const toggleAiPanel = usePreferencesStore((state) => state.toggleAiPanel);
+  const profile = useWorkspaceStore((state) => state.profile);
+  const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const workspaceName = workspaceDisplayName(profile);
+  const setupProgress = workspaceProgress(completedSteps);
+  const workspacePlan = setupProgress === 100 ? "Live" : organization.plan;
 
   const currentPage = useMemo(
     () =>
@@ -94,8 +104,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   NX
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">{organization.name}</p>
-                  <Badge tone="accent">{organization.plan}</Badge>
+                  <p className="text-sm font-semibold">{workspaceName}</p>
+                  <Badge tone={setupProgress === 100 ? "positive" : "accent"}>{workspacePlan}</Badge>
                 </div>
               </div>
               <div className="space-y-5">
@@ -155,9 +165,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 exit={{ opacity: 0, x: -8 }}
                 className="min-w-0"
               >
-                <p className="truncate text-sm font-semibold">{organization.name}</p>
-                <div className="mt-1 flex items-center gap-2">
-                  <Badge tone="accent">{organization.plan}</Badge>
+                  <p className="truncate text-sm font-semibold">{workspaceName}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge tone={setupProgress === 100 ? "positive" : "accent"}>
+                      {workspacePlan}
+                    </Badge>
                 </div>
               </motion.div>
             ) : null}
@@ -189,13 +201,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className="mt-3 block rounded-2xl border border-accent-2/25 bg-accent-2/10 p-3 text-sm transition hover:border-accent-2/45 hover:bg-accent-2/14"
             >
               <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="font-semibold text-text">Fresh setup</span>
+                <span className="font-semibold text-text">Workspace setup</span>
                 <span className="rounded-full bg-surface px-2 py-0.5 text-[11px] text-muted">
-                  0%
+                  {setupProgress}%
                 </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-border/70">
-                <div className="h-full w-0 rounded-full bg-accent-2" />
+                <div
+                  className="h-full rounded-full bg-accent-2 transition-all"
+                  style={{ width: `${setupProgress}%` }}
+                />
               </div>
             </Link>
           ) : null}

@@ -5,15 +5,29 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useWorkspaceStore, workspaceDisplayName } from "@/stores/workspace-store";
 
 export function AssetsModule() {
+  const profile = useWorkspaceStore((state) => state.profile);
+  const imports = useWorkspaceStore((state) => state.imports);
+  const workspaceName = workspaceDisplayName(profile);
+  const hasAssetPlan = Boolean(imports.assetSource || imports.knowledgeSource);
+
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
       <EmptyState
         icon={UploadCloud}
         eyebrow="Assets and knowledge"
-        title="Upload the company’s first files, brand kit, and knowledge base."
-        description="This library starts empty for every MNC. Import drawings, contracts, renders, templates, supplier records, standards, and brand assets when the tenant is ready."
+        title={
+          hasAssetPlan
+            ? `${workspaceName} asset library is connected.`
+            : "Upload the company's first files, brand kit, and knowledge base."
+        }
+        description={
+          hasAssetPlan
+            ? `Storage: ${imports.assetSource || "Not selected"}. Knowledge source: ${imports.knowledgeSource || "Not linked yet"}. Files imported for this MNC will appear here.`
+            : "This library starts empty for every MNC. Import drawings, contracts, renders, templates, supplier records, standards, and brand assets when the tenant is ready."
+        }
         action="Upload files"
         actionHref="/onboarding?step=import-data"
         secondary={
@@ -24,9 +38,11 @@ export function AssetsModule() {
       />
 
       <Card className="rounded-[24px]">
-        <CardHeader title="Asset library" eyebrow="Empty" />
+        <CardHeader title="Asset library" eyebrow={hasAssetPlan ? "Configured" : "Empty"} />
         <div className="rounded-2xl border border-dashed border-border bg-panel/50 p-10 text-center text-sm text-muted">
-          No files, tags, versions, or knowledge chunks yet.
+          {hasAssetPlan
+            ? `Ready to sync files from ${imports.assetSource || "the selected source"}.`
+            : "No files, tags, versions, or knowledge chunks yet."}
         </div>
       </Card>
 
@@ -52,7 +68,9 @@ export function AssetsModule() {
             <div key={item} className="rounded-2xl border border-dashed border-border bg-panel/50 p-5">
               <FileArchive className="mb-3 h-5 w-5 text-accent-2" />
               <p className="text-sm font-semibold">{item}</p>
-              <p className="mt-2 text-sm text-muted">Empty until this tenant imports records.</p>
+              <p className="mt-2 text-sm text-muted">
+                {hasAssetPlan ? `Ready for ${workspaceName} records.` : "Empty until this tenant imports records."}
+              </p>
             </div>
           ))}
         </div>

@@ -6,27 +6,42 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useWorkspaceStore, workspaceDisplayName } from "@/stores/workspace-store";
 
 const RevenuePipelineChart = dynamic(
   () => import("@/components/dashboard/charts").then((mod) => mod.RevenuePipelineChart),
   { ssr: false, loading: () => <div className="skeleton h-full rounded-xl" /> },
 );
 
-const financeCards = [
-  { label: "Revenue", value: "$0", helper: "Connect invoices" },
-  { label: "Margin", value: "0%", helper: "Set cost rules" },
-  { label: "AR aging", value: "$0", helper: "Add clients" },
-  { label: "Forecast", value: "$0", helper: "Import pipeline" },
-];
-
 export function FinanceModule() {
+  const profile = useWorkspaceStore((state) => state.profile);
+  const imports = useWorkspaceStore((state) => state.imports);
+  const launch = useWorkspaceStore((state) => state.launch);
+  const workspaceName = workspaceDisplayName(profile);
+  const hasFinancePlan = Boolean(imports.invoiceSource || launch.aiBudget || profile.currency);
+  const currency = profile.currency || "$";
+  const cards = [
+    { label: "Revenue", value: `${currency}0`, helper: imports.invoiceSource || "Connect invoices" },
+    { label: "Margin", value: "0%", helper: "Set cost rules" },
+    { label: "AR aging", value: `${currency}0`, helper: "Add clients" },
+    { label: "Forecast", value: `${currency}0`, helper: imports.projectSource || "Import pipeline" },
+  ];
+
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
       <EmptyState
         icon={Landmark}
         eyebrow="Financial command"
-        title="Connect finance only when the tenant is ready."
-        description="Every MNC starts with zero invoices, zero client balances, and no imported forecast. Add Stripe, tax rules, currencies, approval limits, and accounting integrations during setup."
+        title={
+          hasFinancePlan
+            ? `${workspaceName} finance settings are prepared.`
+            : "Connect finance only when the tenant is ready."
+        }
+        description={
+          hasFinancePlan
+            ? `Currency: ${profile.currency || "Not selected"}. Invoice source: ${imports.invoiceSource || "Not linked yet"}. Values stay zero until real invoices are imported.`
+            : "Every MNC starts with zero invoices, zero client balances, and no imported forecast. Add Stripe, tax rules, currencies, approval limits, and accounting integrations during setup."
+        }
         action="Configure finance"
         actionHref="/onboarding?step=finance"
         secondary={
@@ -37,7 +52,7 @@ export function FinanceModule() {
       />
 
       <section className="grid gap-4 md:grid-cols-4">
-        {financeCards.map((card) => (
+        {cards.map((card) => (
           <Card key={card.label} className="rounded-[24px]">
             <p className="text-xs uppercase tracking-[0.12em] text-muted">{card.label}</p>
             <p className="mt-3 text-3xl font-semibold">{card.value}</p>

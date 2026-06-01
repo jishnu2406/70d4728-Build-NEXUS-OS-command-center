@@ -52,13 +52,32 @@ test.describe("fresh MNC OS", () => {
     await page.getByLabel("CEO / owner email").fill("owner@example.com");
     await page.getByLabel("Default member role").selectOption("Member");
     await page.getByRole("button", { name: "Save invitation plan", exact: true }).click();
-    await expect(page.getByText("20%")).toBeVisible();
+    await expect(page.getByRole("main").getByText("20%", { exact: true })).toBeVisible();
 
     await page.getByRole("link", { name: "Select modules", exact: true }).click();
     await page.getByRole("button", { name: "Architecture", exact: true }).click();
     await page.getByRole("button", { name: "Finance", exact: true }).click();
     await page.getByRole("button", { name: "Apply module setup", exact: true }).click();
-    await expect(page.getByText("40%")).toBeVisible();
+    await expect(page.getByRole("main").getByText("40%", { exact: true })).toBeVisible();
+  });
+
+  test("saved MNC setup is reflected across the workspace", async ({ page }) => {
+    await page.goto("/onboarding?step=identity");
+    await page.getByLabel("Company name").fill("Orion Global");
+    await page.getByLabel("Company type").selectOption("Architecture");
+    await page.getByLabel("Primary region").selectOption("India");
+    await page.getByLabel("Currency").selectOption("INR");
+    await page.getByRole("button", { name: "Save company profile", exact: true }).click();
+    await expect(page.getByText("Profile saved. Creates the tenant identity")).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByLabel("Company name")).toHaveValue("Orion Global");
+
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: /Orion Global command center/i })).toBeVisible();
+
+    await page.goto("/admin");
+    await expect(page.getByText("Orion Global tenant is registered.")).toBeVisible();
   });
 
   test("module primary actions navigate to setup", async ({ page }) => {

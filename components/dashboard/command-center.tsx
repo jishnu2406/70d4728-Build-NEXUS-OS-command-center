@@ -19,7 +19,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { emptyModules, setupSteps } from "@/lib/data";
+import { setupSteps } from "@/lib/data";
+import {
+  type SetupStepId,
+  setupStepIds,
+  useWorkspaceStore,
+  workspaceDisplayName,
+  workspaceProgress,
+  workspaceTeamCount,
+} from "@/stores/workspace-store";
 
 const moduleActions = [
   { href: "/projects", label: "Project workspace", icon: Building2 },
@@ -46,25 +54,52 @@ const platformPillars = [
   },
 ];
 
+const setupRoutes = ["identity", "team", "modules", "import-data", "launch"];
+
 export function CommandCenter() {
+  const profile = useWorkspaceStore((state) => state.profile);
+  const team = useWorkspaceStore((state) => state.team);
+  const enabledModules = useWorkspaceStore((state) => state.enabledModules);
+  const imports = useWorkspaceStore((state) => state.imports);
+  const launch = useWorkspaceStore((state) => state.launch);
+  const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const workspaceName = workspaceDisplayName(profile);
+  const progress = workspaceProgress(completedSteps);
+  const teamCount = workspaceTeamCount(team);
+  const projectStatus = imports.projectSource ? "Ready" : "0";
+  const assetStatus = imports.assetSource || imports.knowledgeSource ? "Connected" : "0";
+  const aiStatus = enabledModules.includes("AI layer") ? "Enabled" : "Off";
+  const launchStatus = completedSteps.includes("launch") ? "Live" : "Setup";
+  const moduleStats = [
+    { label: "Projects", value: projectStatus, helper: imports.projectSource || "Create or import projects" },
+    { label: "Team", value: String(teamCount), helper: team.defaultRole || "Invite users and assign roles" },
+    { label: "Assets", value: assetStatus, helper: imports.assetSource || "Upload files and templates" },
+    { label: "AI", value: aiStatus, helper: launch.aiBudget ? `${profile.currency || "$"} ${launch.aiBudget} budget` : "Configure AI rules" },
+  ];
+
   return (
     <div className="mx-auto flex max-w-[1500px] flex-col gap-5">
       <section className="relative overflow-hidden rounded-[28px] border border-border bg-surface/72 backdrop-blur-2xl">
         <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
         <div className="grid gap-0 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="p-6 md:p-10">
-            <Badge tone="accent">Fresh MNC setup</Badge>
+            <Badge tone={progress === 100 ? "positive" : "accent"}>
+              {launchStatus === "Live" ? "MNC workspace live" : "Fresh MNC setup"}
+            </Badge>
             <h2 className="mt-6 max-w-4xl text-4xl font-semibold leading-[1.04] text-text md:text-6xl">
-              Set up a clean command center for any MNC.
+              {profile.companyName
+                ? `${workspaceName} command center is taking shape.`
+                : "Set up a clean command center for any MNC."}
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-muted">
-              No sample projects. No demo clients. Each company begins with a private,
-              empty workspace and builds its own structure, people, modules, and data.
+              {profile.companyName
+                ? `${workspaceName} now carries its own identity, team plan, module choices, imports, and launch rules across the OS.`
+                : "No sample projects. No demo clients. Each company begins with a private, empty workspace and builds its own structure, people, modules, and data."}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="primary" size="lg">
                 <Link href="/onboarding">
-                  Start workspace setup
+                  {progress > 0 ? "Resume workspace setup" : "Start workspace setup"}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -74,7 +109,7 @@ export function CommandCenter() {
             </div>
 
             <div className="mt-10 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-              {emptyModules.map((item, index) => (
+              {moduleStats.map((item, index) => (
                 <motion.div
                   key={item.label}
                   initial={{ opacity: 0, y: 14 }}
@@ -97,22 +132,28 @@ export function CommandCenter() {
                   <p className="text-xs uppercase tracking-[0.14em] text-muted">
                     Setup progress
                   </p>
-                  <p className="mt-1 text-sm font-semibold">Ready to begin</p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {progress === 100 ? "Ready for handoff" : `${progress}% configured`}
+                  </p>
                 </div>
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent-2/15 text-accent-2">
                   <Command className="h-5 w-5" />
                 </div>
               </div>
-              <Progress value={0} className="mb-5" />
+              <Progress value={progress} className="mb-5" tone={progress === 100 ? "positive" : "accent"} />
               <div className="space-y-2">
                 {setupSteps.map((step, index) => (
                   <Link
                     key={step.id}
-                    href="/onboarding"
+                    href={`/onboarding?step=${setupRoutes[index]}`}
                     className="group flex items-center gap-3 rounded-2xl border border-border bg-panel/70 p-4 transition hover:border-accent-2/45 hover:bg-panel"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-xs text-muted">
-                      {index + 1}
+                      {completedSteps.includes(setupStepIds[index] as SetupStepId) ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        index + 1
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-text">{step.title}</p>
