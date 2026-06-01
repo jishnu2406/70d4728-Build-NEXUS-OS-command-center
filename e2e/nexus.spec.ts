@@ -42,15 +42,22 @@ test.describe("fresh MNC OS", () => {
 
   test("onboarding buttons update the active setup panel", async ({ page }) => {
     await page.goto("/onboarding");
-    await page.getByRole("button", { name: "Open", exact: true }).first().click();
+    await page.getByRole("link", { name: "Invite team", exact: true }).click();
+    await expect(page).toHaveURL(/\/onboarding\?step=team/);
     await expect(
       page
         .getByRole("complementary")
         .getByRole("heading", { name: "Invite the leadership team", exact: true }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Prepare", exact: true }).first().click();
+    await page.getByLabel("CEO / owner email").fill("owner@example.com");
+    await page.getByLabel("Default member role").selectOption("Member");
+    await page.getByRole("button", { name: "Save invitation plan", exact: true }).click();
     await expect(page.getByText("20%")).toBeVisible();
-    await page.getByRole("button", { name: "Mark step prepared", exact: true }).click();
+
+    await page.getByRole("link", { name: "Select modules", exact: true }).click();
+    await page.getByRole("button", { name: "Architecture", exact: true }).click();
+    await page.getByRole("button", { name: "Finance", exact: true }).click();
+    await page.getByRole("button", { name: "Apply module setup", exact: true }).click();
     await expect(page.getByText("40%")).toBeVisible();
   });
 
@@ -58,5 +65,10 @@ test.describe("fresh MNC OS", () => {
     await page.goto("/assets");
     await page.getByRole("link", { name: /upload files/i }).click();
     await expect(page).toHaveURL(/\/onboarding\?step=import-data/);
+    await expect(
+      page
+        .getByRole("complementary")
+        .getByRole("heading", { name: "Import company data", exact: true }),
+    ).toBeVisible();
   });
 });
