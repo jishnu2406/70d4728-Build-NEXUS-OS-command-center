@@ -13,6 +13,7 @@ import {
   Search,
   Settings,
   Shield,
+  Rocket,
   UsersRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 const actions = [
   { label: "Open Command Center", href: "/", icon: LayoutDashboard },
+  { label: "Start tenant setup", href: "/onboarding", icon: Rocket },
   { label: "Create project workspace", href: "/projects", icon: FolderKanban },
   { label: "Open capacity planner", href: "/people", icon: UsersRound },
   { label: "Search knowledge base", href: "/assets", icon: FileSearch },

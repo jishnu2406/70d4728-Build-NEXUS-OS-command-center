@@ -13,6 +13,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   Menu,
+  Rocket,
   Search,
   Settings,
   Shield,
@@ -33,6 +34,7 @@ import { usePreferencesStore } from "@/stores/preferences-store";
 
 const navigation = [
   { label: "Command", href: "/", icon: LayoutDashboard, group: "Command" },
+  { label: "Setup", href: "/onboarding", icon: Rocket, group: "Command" },
   { label: "Projects", href: "/projects", icon: FolderKanban, group: "Work" },
   { label: "People", href: "/people", icon: UsersRound, group: "Work" },
   { label: "Assets", href: "/assets", icon: FileStack, group: "Work" },
@@ -142,7 +144,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="sticky top-0 hidden h-screen shrink-0 border-r border-border bg-surface/72 backdrop-blur-xl md:flex md:flex-col"
       >
         <div className="flex h-20 items-center gap-3 border-b border-border px-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-panel text-sm font-bold text-accent">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-panel text-sm font-bold text-accent shadow-sm">
             NX
           </div>
           <AnimatePresence initial={false}>
@@ -181,6 +183,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </>
             ) : null}
           </button>
+          {!sidebarCollapsed ? (
+            <Link
+              href="/onboarding"
+              className="mt-3 block rounded-2xl border border-accent-2/25 bg-accent-2/10 p-3 text-sm transition hover:border-accent-2/45 hover:bg-accent-2/14"
+            >
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="font-semibold text-text">Fresh setup</span>
+                <span className="rounded-full bg-surface px-2 py-0.5 text-[11px] text-muted">
+                  0%
+                </span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-border/70">
+                <div className="h-full w-0 rounded-full bg-accent-2" />
+              </div>
+            </Link>
+          ) : null}
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 pb-4">
