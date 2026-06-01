@@ -34,6 +34,7 @@ import { usePreferencesStore } from "@/stores/preferences-store";
 import {
   useWorkspaceStore,
   workspaceDisplayName,
+  workspaceIsLive,
   workspaceProgress,
 } from "@/stores/workspace-store";
 
@@ -60,9 +61,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const toggleAiPanel = usePreferencesStore((state) => state.toggleAiPanel);
   const profile = useWorkspaceStore((state) => state.profile);
   const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const launchedAt = useWorkspaceStore((state) => state.launchedAt);
   const workspaceName = workspaceDisplayName(profile);
   const setupProgress = workspaceProgress(completedSteps);
-  const workspacePlan = setupProgress === 100 ? "Live" : organization.plan;
+  const isLive = workspaceIsLive(launchedAt, completedSteps);
+  const workspacePlan = isLive ? "Live" : organization.plan;
 
   const currentPage = useMemo(
     () =>
@@ -105,7 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold">{workspaceName}</p>
-                  <Badge tone={setupProgress === 100 ? "positive" : "accent"}>{workspacePlan}</Badge>
+                  <Badge tone={isLive ? "positive" : "accent"}>{workspacePlan}</Badge>
                 </div>
               </div>
               <div className="space-y-5">
@@ -167,7 +170,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                   <p className="truncate text-sm font-semibold">{workspaceName}</p>
                   <div className="mt-1 flex items-center gap-2">
-                    <Badge tone={setupProgress === 100 ? "positive" : "accent"}>
+                    <Badge tone={isLive ? "positive" : "accent"}>
                       {workspacePlan}
                     </Badge>
                 </div>

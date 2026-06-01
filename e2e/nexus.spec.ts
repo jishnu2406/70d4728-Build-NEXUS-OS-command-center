@@ -80,6 +80,52 @@ test.describe("fresh MNC OS", () => {
     await expect(page.getByText("Orion Global tenant is registered.")).toBeVisible();
   });
 
+  test("launch unlocks live projects and employees", async ({ page }) => {
+    await page.goto("/onboarding?step=identity");
+    await page.getByLabel("Company name").fill("Nova Build");
+    await page.getByLabel("Company type").selectOption("Architecture");
+    await page.getByLabel("Primary region").selectOption("India");
+    await page.getByLabel("Currency").selectOption("INR");
+    await page.getByRole("button", { name: "Save company profile", exact: true }).click();
+
+    await page.getByRole("link", { name: "Invite team", exact: true }).click();
+    await page.getByLabel("CEO / owner email").fill("owner@nova.test");
+    await page.getByLabel("Default member role").selectOption("Member");
+    await page.getByRole("button", { name: "Save invitation plan", exact: true }).click();
+
+    await page.getByRole("link", { name: "Select modules", exact: true }).click();
+    await page.getByRole("button", { name: "Architecture", exact: true }).click();
+    await page.getByRole("button", { name: "Finance", exact: true }).click();
+    await page.getByRole("button", { name: "Apply module setup", exact: true }).click();
+
+    await page.getByRole("link", { name: "Import data", exact: true }).click();
+    await page.getByLabel("Project source").selectOption("Manual setup");
+    await page.getByRole("button", { name: "Validate import plan", exact: true }).click();
+
+    await page.getByRole("link", { name: "Review launch", exact: true }).click();
+    await page.getByLabel("SSO provider").selectOption("Email login");
+    await page.getByLabel("2FA policy").selectOption("Required for admins");
+    await page.getByLabel("Monthly AI budget").fill("25000");
+    await page.getByLabel("Go-live date").fill("2026-07-01");
+    await page.getByRole("button", { name: "Launch MNC workspace", exact: true }).click();
+    await expect(page.getByText("Workspace launched.")).toBeVisible();
+
+    await page.goto("/projects");
+    await page.getByPlaceholder("Project name").fill("HQ Renovation");
+    await page.getByPlaceholder("Client").fill("Nova Holdings");
+    await page.getByPlaceholder("Location").fill("Bengaluru");
+    await page.getByRole("button", { name: "Add project to workspace", exact: true }).click();
+    await expect(page.getByText("HQ Renovation")).toBeVisible();
+
+    await page.goto("/people");
+    await page.getByPlaceholder("Full name").fill("Ananya Rao");
+    await page.getByPlaceholder("Email").fill("ananya@nova.test");
+    await page.getByPlaceholder("Department").fill("Projects");
+    await page.getByPlaceholder("Role").fill("Project Manager");
+    await page.getByRole("button", { name: "Add employee to directory", exact: true }).click();
+    await expect(page.getByText("Ananya Rao")).toBeVisible();
+  });
+
   test("module primary actions navigate to setup", async ({ page }) => {
     await page.goto("/assets");
     await page.getByRole("link", { name: /upload files/i }).click();

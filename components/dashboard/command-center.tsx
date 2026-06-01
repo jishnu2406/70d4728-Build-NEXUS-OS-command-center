@@ -25,6 +25,7 @@ import {
   setupStepIds,
   useWorkspaceStore,
   workspaceDisplayName,
+  workspaceIsLive,
   workspaceProgress,
   workspaceTeamCount,
 } from "@/stores/workspace-store";
@@ -63,16 +64,20 @@ export function CommandCenter() {
   const imports = useWorkspaceStore((state) => state.imports);
   const launch = useWorkspaceStore((state) => state.launch);
   const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const launchedAt = useWorkspaceStore((state) => state.launchedAt);
+  const projects = useWorkspaceStore((state) => state.projects);
+  const employees = useWorkspaceStore((state) => state.employees);
   const workspaceName = workspaceDisplayName(profile);
   const progress = workspaceProgress(completedSteps);
   const teamCount = workspaceTeamCount(team);
-  const projectStatus = imports.projectSource ? "Ready" : "0";
+  const isLive = workspaceIsLive(launchedAt, completedSteps);
+  const peopleTotal = teamCount + employees.length;
+  const projectStatus = projects.length ? String(projects.length) : imports.projectSource ? "Ready" : "0";
   const assetStatus = imports.assetSource || imports.knowledgeSource ? "Connected" : "0";
   const aiStatus = enabledModules.includes("AI layer") ? "Enabled" : "Off";
-  const launchStatus = completedSteps.includes("launch") ? "Live" : "Setup";
   const moduleStats = [
-    { label: "Projects", value: projectStatus, helper: imports.projectSource || "Create or import projects" },
-    { label: "Team", value: String(teamCount), helper: team.defaultRole || "Invite users and assign roles" },
+    { label: "Projects", value: projectStatus, helper: projects[0]?.name || imports.projectSource || "Create or import projects" },
+    { label: "Team", value: String(peopleTotal), helper: employees[0]?.department || team.defaultRole || "Invite users and assign roles" },
     { label: "Assets", value: assetStatus, helper: imports.assetSource || "Upload files and templates" },
     { label: "AI", value: aiStatus, helper: launch.aiBudget ? `${profile.currency || "$"} ${launch.aiBudget} budget` : "Configure AI rules" },
   ];
@@ -84,22 +89,26 @@ export function CommandCenter() {
         <div className="grid gap-0 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="p-6 md:p-10">
             <Badge tone={progress === 100 ? "positive" : "accent"}>
-              {launchStatus === "Live" ? "MNC workspace live" : "Fresh MNC setup"}
+              {isLive ? "MNC workspace live" : "Fresh MNC setup"}
             </Badge>
             <h2 className="mt-6 max-w-4xl text-4xl font-semibold leading-[1.04] text-text md:text-6xl">
-              {profile.companyName
+              {isLive
+                ? `${workspaceName} is live and ready for operations.`
+                : profile.companyName
                 ? `${workspaceName} command center is taking shape.`
                 : "Set up a clean command center for any MNC."}
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-muted">
-              {profile.companyName
+              {isLive
+                ? "Start adding real projects, employees, files, clients, invoices, and AI rules. This workspace now moves from setup into daily work."
+                : profile.companyName
                 ? `${workspaceName} now carries its own identity, team plan, module choices, imports, and launch rules across the OS.`
                 : "No sample projects. No demo clients. Each company begins with a private, empty workspace and builds its own structure, people, modules, and data."}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="primary" size="lg">
                 <Link href="/onboarding">
-                  {progress > 0 ? "Resume workspace setup" : "Start workspace setup"}
+                  {isLive ? "Review launch settings" : progress > 0 ? "Resume workspace setup" : "Start workspace setup"}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

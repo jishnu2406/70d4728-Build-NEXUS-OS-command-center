@@ -3,16 +3,15 @@ import { cn } from "@/lib/utils";
 export function Card({
   children,
   className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+  ...props
+}: React.ComponentPropsWithoutRef<"section">) {
   return (
     <section
       className={cn(
         "panel rounded-xl p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-lift",
         className,
       )}
+      {...props}
     >
       {children}
     </section>

@@ -17,10 +17,11 @@ export function AdminModule() {
   const profile = useWorkspaceStore((state) => state.profile);
   const team = useWorkspaceStore((state) => state.team);
   const completedSteps = useWorkspaceStore((state) => state.completedSteps);
+  const employees = useWorkspaceStore((state) => state.employees);
   const workspaceName = workspaceDisplayName(profile);
   const progress = workspaceProgress(completedSteps);
   const tenantCreated = Boolean(profile.companyName || completedSteps.length);
-  const teamCount = workspaceTeamCount(team);
+  const teamCount = workspaceTeamCount(team) + employees.length;
 
   return (
     <Gate

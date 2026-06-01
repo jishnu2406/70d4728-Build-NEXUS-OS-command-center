@@ -34,6 +34,26 @@ export type WorkspaceLaunch = {
   goLiveDate: string;
 };
 
+export type WorkspaceProject = {
+  id: string;
+  name: string;
+  phase: string;
+  client: string;
+  location: string;
+  budget: string;
+  startDate: string;
+  status: string;
+};
+
+export type WorkspaceEmployee = {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  role: string;
+  location: string;
+};
+
 type WorkspaceState = {
   profile: WorkspaceProfile;
   team: WorkspaceTeam;
@@ -41,6 +61,9 @@ type WorkspaceState = {
   imports: WorkspaceImports;
   launch: WorkspaceLaunch;
   completedSteps: SetupStepId[];
+  launchedAt?: string;
+  projects: WorkspaceProject[];
+  employees: WorkspaceEmployee[];
   lastUpdatedAt?: string;
   updateProfile: (profile: Partial<WorkspaceProfile>) => void;
   updateTeam: (team: Partial<WorkspaceTeam>) => void;
@@ -49,6 +72,9 @@ type WorkspaceState = {
   updateLaunch: (launch: Partial<WorkspaceLaunch>) => void;
   completeStep: (step: SetupStepId) => void;
   clearStep: (step: SetupStepId) => void;
+  launchWorkspace: () => void;
+  addProject: (project: Omit<WorkspaceProject, "id" | "status">) => void;
+  addEmployee: (employee: Omit<WorkspaceEmployee, "id">) => void;
   resetWorkspace: () => void;
 };
 
@@ -94,6 +120,9 @@ const freshWorkspace = {
   imports: defaultImports,
   launch: defaultLaunch,
   completedSteps: [] as SetupStepId[],
+  launchedAt: undefined,
+  projects: [] as WorkspaceProject[],
+  employees: [] as WorkspaceEmployee[],
   lastUpdatedAt: undefined,
 };
 
@@ -144,10 +173,44 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           if (step === "teams") next.team = defaultTeam;
           if (step === "modules") next.enabledModules = [];
           if (step === "data") next.imports = defaultImports;
-          if (step === "launch") next.launch = defaultLaunch;
+          if (step === "launch") {
+            next.launch = defaultLaunch;
+            next.launchedAt = undefined;
+          }
 
           return next;
         }),
+      launchWorkspace: () =>
+        set((state) => ({
+          completedSteps: state.completedSteps.includes("launch")
+            ? state.completedSteps
+            : [...state.completedSteps, "launch"],
+          launchedAt: state.launchedAt ?? stamp(),
+          lastUpdatedAt: stamp(),
+        })),
+      addProject: (project) =>
+        set((state) => ({
+          projects: [
+            ...state.projects,
+            {
+              id: crypto.randomUUID(),
+              status: "Active",
+              ...project,
+            },
+          ],
+          lastUpdatedAt: stamp(),
+        })),
+      addEmployee: (employee) =>
+        set((state) => ({
+          employees: [
+            ...state.employees,
+            {
+              id: crypto.randomUUID(),
+              ...employee,
+            },
+          ],
+          lastUpdatedAt: stamp(),
+        })),
       resetWorkspace: () => set({ ...freshWorkspace }),
     }),
     {
@@ -159,6 +222,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         imports,
         launch,
         completedSteps,
+        launchedAt,
+        projects,
+        employees,
         lastUpdatedAt,
       }) => ({
         profile,
@@ -167,6 +233,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         imports,
         launch,
         completedSteps,
+        launchedAt,
+        projects,
+        employees,
         lastUpdatedAt,
       }),
     },
@@ -183,4 +252,8 @@ export function workspaceProgress(completedSteps: SetupStepId[]) {
 
 export function workspaceTeamCount(team: WorkspaceTeam) {
   return [team.ownerEmail, team.financeEmail, team.projectLeadEmail].filter(Boolean).length;
+}
+
+export function workspaceIsLive(launchedAt?: string, completedSteps: SetupStepId[] = []) {
+  return Boolean(launchedAt || completedSteps.includes("launch"));
 }

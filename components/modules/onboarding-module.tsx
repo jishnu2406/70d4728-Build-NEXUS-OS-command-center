@@ -229,10 +229,10 @@ const stepPlans: StepPlan[] = [
     routeKey: "launch",
     aliases: ["launch", "review", "billing", "sso", "security", "go-live"],
     cardAction: "Review launch",
-    panelAction: "Run launch review",
-    completeLabel: "Launch ready",
+    panelAction: "Launch MNC workspace",
+    completeLabel: "Workspace live",
     helper: "Confirm security, billing, integrations, and AI governance before handoff.",
-    outcome: "Locks launch settings and marks the tenant ready for the MNC team.",
+    outcome: "Locks launch settings and opens the workspace for projects, employees, clients, files, finance, and AI work.",
     controls: [
       {
         key: "ssoProvider",
@@ -295,6 +295,7 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
   const updateLaunch = useWorkspaceStore((state) => state.updateLaunch);
   const completeStep = useWorkspaceStore((state) => state.completeStep);
   const clearStep = useWorkspaceStore((state) => state.clearStep);
+  const launchWorkspace = useWorkspaceStore((state) => state.launchWorkspace);
 
   const progress = workspaceProgress(completedSteps);
   const activePlan = stepPlans[activeStep];
@@ -382,6 +383,14 @@ export function OnboardingModule({ initialStepKey }: { initialStepKey?: string }
 
     if (missing.length) {
       setNotice(`Add ${missing.join(", ")} to complete ${setupSteps[index].title}.`);
+      return;
+    }
+
+    if (plan.id === "launch") {
+      launchWorkspace();
+      setNotice(
+        "Workspace launched. The MNC team can now add projects, employees, assets, clients, finance details, and AI operating rules.",
+      );
       return;
     }
 
