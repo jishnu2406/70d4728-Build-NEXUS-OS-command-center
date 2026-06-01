@@ -26,7 +26,7 @@ const starterMessages: Message[] = [
     id: "m1",
     role: "assistant",
     content:
-      "I am watching Atlas, Meridian, and your executive forecast. Ask for a risk summary, proposal draft, or team capacity plan.",
+      "This workspace is fresh. I can help set up the company profile, roles, modules, imports, AI rules, and launch checklist.",
   },
 ];
 
@@ -92,7 +92,7 @@ export function NexusAssistant({ open }: { open: boolean }) {
           id: crypto.randomUUID(),
           role: "assistant",
           content:
-            "The live AI route could not be reached, so here is the operational fallback: Atlas and Meridian need executive attention today; Nova is safe to keep moving; Sora is waiting on board alignment.",
+            "The live AI route could not be reached. Fresh-start fallback: begin with organization identity, invite administrators, choose modules, connect storage, then import this MNC's own data.",
         },
       ]);
     } finally {
@@ -128,7 +128,7 @@ export function NexusAssistant({ open }: { open: boolean }) {
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-panel p-3">
-                <p className="text-xs text-muted">Risk watch</p>
+                <p className="text-xs text-muted">Data watch</p>
                 <p className="text-sm font-semibold">
                   {projects.filter((project) => project.status !== "On Track").length}
                 </p>

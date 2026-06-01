@@ -240,11 +240,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
               <Avatar.Root className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-panel text-xs font-semibold">
-                <Avatar.Fallback>{initials("Ada Sterling")}</Avatar.Fallback>
+                <Avatar.Fallback>{initials("Workspace Owner")}</Avatar.Fallback>
               </Avatar.Root>
               {!sidebarCollapsed ? (
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">Ada Sterling</p>
+                  <p className="truncate text-sm font-medium">Workspace Owner</p>
                   <p className="text-xs uppercase text-muted">{activeSession.role}</p>
                 </div>
               ) : null}
@@ -301,14 +301,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <DropdownMenu.Label className="px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-muted">
                     Notifications
                   </DropdownMenu.Label>
-                  {notifications.map((notification) => (
-                    <DropdownMenu.Item
-                      key={notification}
-                      className="rounded-lg px-3 py-3 text-sm text-muted outline-none hover:bg-panel hover:text-text"
-                    >
-                      {notification}
-                    </DropdownMenu.Item>
-                  ))}
+                  {notifications.length ? (
+                    notifications.map((notification) => (
+                      <DropdownMenu.Item
+                        key={notification}
+                        className="rounded-lg px-3 py-3 text-sm text-muted outline-none hover:bg-panel hover:text-text"
+                      >
+                        {notification}
+                      </DropdownMenu.Item>
+                    ))
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-border bg-panel/60 px-3 py-5 text-center text-sm text-muted">
+                      No notifications yet.
+                    </div>
+                  )}
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>

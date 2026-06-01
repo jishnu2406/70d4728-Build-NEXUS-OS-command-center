@@ -21,10 +21,10 @@ import { cn } from "@/lib/utils";
 
 const actions = [
   { label: "Open Command Center", href: "/", icon: LayoutDashboard },
-  { label: "Review project risks", href: "/projects", icon: FolderKanban },
+  { label: "Create project workspace", href: "/projects", icon: FolderKanban },
   { label: "Open capacity planner", href: "/people", icon: UsersRound },
   { label: "Search knowledge base", href: "/assets", icon: FileSearch },
-  { label: "Open revenue forecast", href: "/finance", icon: CircleDollarSign },
+  { label: "Configure finance", href: "/finance", icon: CircleDollarSign },
   { label: "Configure AI agents", href: "/intelligence", icon: Bot },
   { label: "Open client portal", href: "/client-portal", icon: Building2 },
   { label: "View resource calendar", href: "/projects", icon: CalendarDays },

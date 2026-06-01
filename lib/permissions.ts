@@ -62,9 +62,9 @@ export function hasPermission(role: Role, permission: string) {
 
 export const activeSession = {
   userId: "usr_ada",
-  orgId: "org_foster_partners",
-  orgSlug: "foster-partners",
-  orgName: "Foster + Partners Studio",
+  orgId: "org_new_workspace",
+  orgSlug: "new-workspace",
+  orgName: "New MNC Workspace",
   role: "ceo" as Role,
   permissions: PERMISSIONS.ceo,
 };

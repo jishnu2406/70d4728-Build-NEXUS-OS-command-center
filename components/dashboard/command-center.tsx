@@ -1,294 +1,187 @@
 "use client";
 
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
 import {
-  AlertTriangle,
-  ArrowUpRight,
-  CalendarClock,
-  CloudSun,
-  Grip,
+  ArrowRight,
+  Building2,
+  Check,
+  ChevronRight,
+  Cloud,
+  Command,
+  Database,
+  LockKeyhole,
+  Palette,
   Sparkles,
+  UsersRound,
 } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-  aiAgents,
-  dashboardStats,
-  organization,
-  projects,
-  team,
-} from "@/lib/data";
-import { formatCurrency, formatPercent } from "@/lib/utils";
+import { emptyModules, setupSteps } from "@/lib/data";
 
-const RevenuePipelineChart = dynamic(
-  () => import("@/components/dashboard/charts").then((mod) => mod.RevenuePipelineChart),
-  { ssr: false, loading: () => <div className="skeleton h-full rounded-xl" /> },
-);
+const moduleActions = [
+  { href: "/projects", label: "Project workspace", icon: Building2 },
+  { href: "/settings", label: "Brand workspace", icon: Palette },
+  { href: "/people", label: "Invite team", icon: UsersRound },
+  { href: "/assets", label: "Import data", icon: Database },
+];
 
-const UtilizationChart = dynamic(
-  () => import("@/components/dashboard/charts").then((mod) => mod.UtilizationChart),
-  { ssr: false, loading: () => <div className="skeleton h-full rounded-xl" /> },
-);
-
-const cardMotion = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-};
-
-const executiveSignals = [
+const platformPillars = [
   {
-    label: "Upcoming deadline",
-    title: "Meridian supplier sign-off",
-    value: "5 days",
-    icon: CalendarClock,
+    icon: LockKeyhole,
+    title: "Tenant isolated",
+    text: "Every MNC starts with a clean workspace, role model, and data boundary.",
   },
   {
-    label: "Client satisfaction",
-    title: "Average portfolio score",
-    value: "91/100",
+    icon: Cloud,
+    title: "Vercel ready",
+    text: "Frontend and API routes deploy together; database and keys are added per tenant.",
+  },
+  {
     icon: Sparkles,
-  },
-  {
-    label: "Revenue at risk",
-    title: "Blocked milestones",
-    value: formatCurrency(740000),
-    icon: ArrowUpRight,
+    title: "AI optional",
+    text: "NEXUS Mind stays quiet until the company connects model keys and budgets.",
   },
 ];
 
 export function CommandCenter() {
   return (
-    <div className="mx-auto flex max-w-[1600px] flex-col gap-5">
-      <section className="grid gap-4 2xl:grid-cols-[1.4fr_0.8fr]">
-        <Card className="overflow-hidden p-0">
-          <div className="grid min-h-[330px] gap-0 2xl:grid-cols-[1.15fr_0.85fr]">
-            <div className="p-6 md:p-8">
-              <Badge tone="accent">Command. Create. Conquer.</Badge>
-              <h2 className="mt-6 max-w-3xl text-3xl font-semibold leading-tight md:text-4xl 2xl:text-5xl">
-                Enterprise command center for design-led MNC operations.
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-muted md:text-base">
-                Multi-tenant project control, AI agents, financial forecasting,
-                client portals, and knowledge search are stitched into one workspace.
-              </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-4">
-                {dashboardStats.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    {...cardMotion}
-                    transition={{ delay: index * 0.05 }}
-                    className="rounded-xl border border-border bg-panel/75 p-4"
+    <div className="mx-auto flex max-w-[1500px] flex-col gap-5">
+      <section className="relative overflow-hidden rounded-[28px] border border-border bg-surface/72 backdrop-blur-2xl">
+        <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
+        <div className="grid gap-0 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="p-6 md:p-10">
+            <Badge tone="accent">Fresh MNC setup</Badge>
+            <h2 className="mt-6 max-w-4xl text-4xl font-semibold leading-[1.04] text-text md:text-6xl">
+              Set up a clean command center for any MNC.
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-muted">
+              No sample projects. No demo clients. Each company begins with a private,
+              empty workspace and builds its own structure, people, modules, and data.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild variant="primary" size="lg">
+                <Link href="/onboarding">
+                  Start workspace setup
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="glass" size="lg">
+                <Link href="/settings">Choose brand style</Link>
+              </Button>
+            </div>
+
+            <div className="mt-10 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+              {emptyModules.map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="rounded-2xl border border-border bg-panel/70 p-4"
+                >
+                  <p className="text-xs text-muted">{item.label}</p>
+                  <p className="mt-3 text-3xl font-semibold">{item.value}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted">{item.helper}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-border bg-panel/38 p-5 md:p-8 xl:border-l xl:border-t-0">
+            <div className="mx-auto max-w-xl rounded-[24px] border border-border bg-surface/80 p-4 shadow-glass">
+              <div className="mb-4 flex items-center justify-between px-2">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-muted">
+                    Setup progress
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">Ready to begin</p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent-2/15 text-accent-2">
+                  <Command className="h-5 w-5" />
+                </div>
+              </div>
+              <Progress value={0} className="mb-5" />
+              <div className="space-y-2">
+                {setupSteps.map((step, index) => (
+                  <Link
+                    key={step.id}
+                    href="/onboarding"
+                    className="group flex items-center gap-3 rounded-2xl border border-border bg-panel/70 p-4 transition hover:border-accent-2/45 hover:bg-panel"
                   >
-                    <p className="text-xs text-muted">{stat.label}</p>
-                    <div className="mt-3 flex items-end justify-between gap-2">
-                      <p className="text-2xl font-semibold">{stat.value}</p>
-                      <span
-                        className={
-                          stat.tone === "positive"
-                            ? "text-xs text-positive"
-                            : "text-xs text-warning"
-                        }
-                      >
-                        {stat.delta}
-                      </span>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-xs text-muted">
+                      {index + 1}
                     </div>
-                  </motion.div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-text">{step.title}</p>
+                      <p className="mt-1 truncate text-xs text-muted">{step.description}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted transition group-hover:translate-x-0.5 group-hover:text-accent-2" />
+                  </Link>
                 ))}
               </div>
             </div>
-            <div className="relative min-h-[280px] border-t border-border bg-panel/50 p-6 lg:border-l lg:border-t-0">
-              <div className="absolute inset-6 rounded-[22px] border border-border bg-[linear-gradient(135deg,rgb(var(--accent-2)/0.18),transparent_58%),linear-gradient(45deg,rgb(var(--accent)/0.08),transparent)]" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <Badge>Org health {organization.health}%</Badge>
-                  <Grip className="h-4 w-4 text-muted" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-muted">
-                    Live operating graph
-                  </p>
-                  <div className="mt-4 grid grid-cols-3 gap-3">
-                    {["Projects", "People", "Capital"].map((node, index) => (
-                      <motion.div
-                        key={node}
-                        initial={{ opacity: 0, scale: 0.92 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.15 + index * 0.08 }}
-                        className="rounded-2xl border border-border bg-surface/80 p-4 text-center"
-                      >
-                        <div className="mx-auto mb-3 h-10 w-10 rounded-full border border-accent-2/40 bg-accent-2/16" />
-                        <p className="text-xs font-medium text-muted">{node}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-xl border border-border bg-surface/70 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                    <Sparkles className="h-4 w-4 text-accent-2" />
-                    AI executive brief
-                  </div>
-                  <p className="text-sm leading-6 text-muted">
-                    Two projects require intervention; current AI automation is
-                    projected to save 184 hours this week.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="48-hour alert board"
-            eyebrow="Overdue Items"
-            action={<Badge tone="danger">4 flags</Badge>}
-          />
-          <div className="space-y-3">
-            {projects
-              .filter((project) => project.status !== "On Track")
-              .map((project) => (
-                <div key={project.id} className="rounded-xl border border-border bg-panel p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 text-warning" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">{project.name}</p>
-                      <p className="mt-1 text-sm leading-5 text-muted">{project.risk}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </Card>
+        </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr_0.8fr]">
-        <Card className="min-h-[360px]">
-          <CardHeader
-            title="Revenue pipeline"
-            eyebrow="Forecast"
-            action={<Button variant="ghost" size="sm">Export</Button>}
-          />
-          <div className="h-[260px]">
-            <RevenuePipelineChart />
-          </div>
-        </Card>
+      <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <Card className="rounded-[24px]">
+          <CardHeader title="Workspace launchpad" eyebrow="Next actions" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {moduleActions.map((action) => {
+              const Icon = action.icon;
 
-        <Card>
-          <CardHeader title="Team utilization" eyebrow="Capacity" />
-          <div className="h-[260px]">
-            <UtilizationChart />
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader title="AI activity feed" eyebrow="NEXUS Mind" />
-          <div className="space-y-3">
-            {aiAgents.slice(0, 3).map((agent) => (
-              <div key={agent.id} className="rounded-xl border border-border bg-panel p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium">{agent.name}</p>
-                  <Badge tone={agent.status === "Paused" ? "warning" : "accent"}>
-                    {agent.status}
-                  </Badge>
-                </div>
-                <p className="mt-2 text-sm leading-5 text-muted">{agent.signal}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr]">
-        <Card>
-          <CardHeader title="Active project heatmap" eyebrow="Status x Deadline" />
-          <div className="grid gap-3 md:grid-cols-2">
-            {projects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                {...cardMotion}
-                transition={{ delay: index * 0.05 }}
-                className="rounded-xl border border-border bg-panel p-4"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{project.name}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {project.code} / {project.phase} / {project.lead}
-                    </p>
+              return (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="group rounded-2xl border border-border bg-panel/75 p-4 transition hover:-translate-y-0.5 hover:border-accent-2/40"
+                >
+                  <Icon className="h-5 w-5 text-accent-2" />
+                  <div className="mt-5 flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">{action.label}</p>
+                    <ChevronRight className="h-4 w-4 text-muted group-hover:text-accent-2" />
                   </div>
-                  <Badge
-                    tone={
-                      project.status === "On Track"
-                        ? "positive"
-                        : project.status === "Blocked"
-                          ? "danger"
-                          : "warning"
-                    }
-                  >
-                    {project.status}
-                  </Badge>
-                </div>
-                <Progress
-                  value={project.completion}
-                  tone={project.status === "Blocked" ? "danger" : "accent"}
-                  className="mt-4"
-                />
-                <div className="mt-4 flex items-center justify-between text-xs text-muted">
-                  <span>{formatPercent(project.completion)} complete</span>
-                  <span>{project.dueInDays} days left</span>
-                </div>
-              </motion.div>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </Card>
 
-        <Card>
-          <CardHeader title="Resource calendar" eyebrow="Today" />
-          <div className="space-y-3">
-            {team.map((person) => (
-              <div key={person.id} className="rounded-xl border border-border bg-panel p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium">{person.name}</p>
-                    <p className="text-xs text-muted">{person.department}</p>
-                  </div>
-                  <Badge tone={person.utilization > 90 ? "danger" : "neutral"}>
-                    {person.utilization}%
-                  </Badge>
+        <Card className="rounded-[24px]">
+          <CardHeader title="Fresh by design" eyebrow="Enterprise defaults" />
+          <div className="grid gap-3 md:grid-cols-3">
+            {platformPillars.map((pillar) => {
+              const Icon = pillar.icon;
+
+              return (
+                <div key={pillar.title} className="rounded-2xl border border-border bg-panel/70 p-4">
+                  <Icon className="h-5 w-5 text-accent-2" />
+                  <h3 className="mt-4 text-sm font-semibold">{pillar.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted">{pillar.text}</p>
                 </div>
-                <Progress
-                  value={person.utilization}
-                  tone={person.utilization > 90 ? "danger" : "positive"}
-                  className="mt-3"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 rounded-xl border border-border bg-panel p-4">
-            <div className="mb-2 flex items-center gap-2">
-              <CloudSun className="h-4 w-4 text-warning" />
-              <p className="text-sm font-medium">Field weather</p>
-            </div>
-            <p className="text-sm text-muted">
-              Dubai site visit window is clear until 16:00. Heat protocol recommended.
-            </p>
+              );
+            })}
           </div>
         </Card>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        {executiveSignals.map(({ label, title, value, icon: Icon }) => (
-          <Card key={label} className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-muted">{label}</p>
-              <p className="mt-2 text-sm text-muted">{title}</p>
-              <p className="mt-2 text-2xl font-semibold">{value}</p>
+        {[
+          ["Identity", "Company profile, domain, brand, currency, region."],
+          ["Access", "Roles, SSO, 2FA, client portal boundaries."],
+          ["Data", "Projects, people, files, finance, knowledge import."],
+        ].map(([title, text]) => (
+          <div key={title} className="rounded-[24px] border border-border bg-surface/62 p-5 backdrop-blur-xl">
+            <div className="mb-4 flex h-8 w-8 items-center justify-center rounded-full bg-positive/12 text-positive">
+              <Check className="h-4 w-4" />
             </div>
-            <Icon className="h-8 w-8 text-accent-2" />
-          </Card>
+            <h3 className="text-sm font-semibold">{title}</h3>
+            <p className="mt-2 text-sm leading-6 text-muted">{text}</p>
+          </div>
         ))}
       </section>
     </div>

@@ -22,7 +22,7 @@ type PreferencesState = {
 export const usePreferencesStore = create<PreferencesState>()(
   persist(
     (set) => ({
-      theme: "obsidian",
+      theme: "arctic",
       font: "sf-pro",
       density: "default",
       sidebarCollapsed: false,

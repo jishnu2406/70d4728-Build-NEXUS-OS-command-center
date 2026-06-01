@@ -1,7 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 import { z } from "zod";
-import { aiAgents, organization, projects } from "@/lib/data";
+import { aiAgents, organization, projects, setupSteps } from "@/lib/data";
 
 export const runtime = "nodejs";
 
@@ -19,10 +19,11 @@ const chatSchema = z.object({
 function fallbackStream(prompt: string) {
   const risky = projects.filter((project) => project.status !== "On Track");
   const text = [
-    `NEXUS operational brief for ${organization.name}: `,
-    `${risky.length} projects need attention. `,
-    risky.map((project) => `${project.name}: ${project.risk}`).join(" "),
-    " Recommended action: protect director review time, confirm supplier dependencies, and send a client-facing status note today.",
+    `NEXUS setup brief for ${organization.name}: `,
+    risky.length
+      ? `${risky.length} project records need attention. ${risky.map((project) => `${project.name}: ${project.risk}`).join(" ")} `
+      : "No tenant project data exists yet. ",
+    `Recommended fresh-start sequence: ${setupSteps.map((step) => step.title).join(", ")}.`,
     ` Prompt received: "${prompt.slice(0, 120)}"`,
   ].join("");
 
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     model: anthropic("claude-sonnet-4-20250514"),
     system: [
       "You are NEXUS Mind, an enterprise AI copilot for architecture, interiors, production, and design MNCs.",
-      "Be concise, cite operational records by name, and recommend next actions.",
+      "Be concise. If the workspace is empty, guide first-run setup instead of inventing records.",
       `Active agents: ${aiAgents.map((agent) => agent.name).join(", ")}.`,
     ].join(" "),
     messages: parsed.data.messages,
