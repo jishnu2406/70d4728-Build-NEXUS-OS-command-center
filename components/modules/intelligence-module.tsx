@@ -1,6 +1,7 @@
 "use client";
 
 import { Bot, BrainCircuit, FileText, Gauge, MessageSquareText, Search, Settings2 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,10 +15,13 @@ export function IntelligenceModule() {
         title="AI is off until this MNC configures its own keys and rules."
         description="No preset prompts, documents, agents, or historical context are shipped. Connect model providers, budgets, data sources, and compliance rules per tenant."
         action="Configure AI"
+        actionHref="/onboarding?step=ai"
         secondary={
-          <Button variant="glass">
-            <Settings2 className="h-4 w-4" />
-            Model router
+          <Button asChild variant="glass">
+            <Link href="/onboarding?step=model-router">
+              <Settings2 className="h-4 w-4" />
+              Model router
+            </Link>
           </Button>
         }
       />

@@ -2,6 +2,7 @@
 
 import * as Tabs from "@radix-ui/react-tabs";
 import { CalendarDays, FileText, FolderKanban, MapPin, Plus, Rows3 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -32,10 +33,13 @@ export function ProjectWorkspace() {
         title="Create the first project structure for this MNC."
         description="Start clean with no imported demo work. Add project types, phases, approval gates, client visibility, budgets, and templates that match this company."
         action="Create first project"
+        actionHref="/onboarding?step=first-project"
         secondary={
-          <Button variant="glass">
-            <Plus className="h-4 w-4" />
-            Import project register
+          <Button asChild variant="glass">
+            <Link href="/onboarding?step=import-data">
+              <Plus className="h-4 w-4" />
+              Import project register
+            </Link>
           </Button>
         }
       />
@@ -55,11 +59,11 @@ export function ProjectWorkspace() {
         </Tabs.List>
 
         <Tabs.Content value="kanban">
-          <div className="grid gap-3 overflow-x-auto pb-2 lg:grid-cols-6">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
             {phases.map((phase) => (
               <div
                 key={phase}
-                className="min-h-[360px] min-w-[240px] rounded-2xl border border-border bg-surface/62 p-3 backdrop-blur-xl"
+                className="min-h-[320px] rounded-2xl border border-border bg-surface/62 p-3 backdrop-blur-xl"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-semibold">{phase}</p>
@@ -67,7 +71,7 @@ export function ProjectWorkspace() {
                     0
                   </span>
                 </div>
-                <div className="flex h-[285px] items-center justify-center rounded-2xl border border-dashed border-border bg-panel/40 p-5 text-center text-sm text-muted">
+                <div className="flex h-[245px] items-center justify-center rounded-2xl border border-dashed border-border bg-panel/40 p-5 text-center text-sm leading-6 text-muted">
                   Drop future projects here after setup.
                 </div>
               </div>

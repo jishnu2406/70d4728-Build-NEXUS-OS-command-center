@@ -1,6 +1,7 @@
 "use client";
 
 import { Brain, CalendarCheck, GitBranch, UserPlus, UsersRound } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,10 +15,13 @@ export function PeopleModule() {
         title="Invite the company team and define departments."
         description="Start with a clean directory. Add leadership, departments, locations, roles, capacity rules, clients, contractors, and AI agent identities for this MNC."
         action="Invite first user"
+        actionHref="/onboarding?step=team"
         secondary={
-          <Button variant="glass">
-            <UserPlus className="h-4 w-4" />
-            Import people CSV
+          <Button asChild variant="glass">
+            <Link href="/onboarding?step=import-people">
+              <UserPlus className="h-4 w-4" />
+              Import people CSV
+            </Link>
           </Button>
         }
       />

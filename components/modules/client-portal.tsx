@@ -13,6 +13,7 @@ export function ClientPortalModule() {
         title="No clients are visible until this MNC creates its first portal."
         description="Each tenant gets a blank, white-labeled portal. Add clients, projects, approval milestones, shared documents, payment links, and access rules during setup."
         action="Create client portal"
+        actionHref="/onboarding?step=client-portal"
       />
 
       <section className="grid gap-4 md:grid-cols-4">

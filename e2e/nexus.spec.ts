@@ -39,4 +39,24 @@ test.describe("fresh MNC OS", () => {
     await page.getByRole("tab", { name: "Kanban", exact: true }).click();
     await expect(page.getByText("Drop future projects here").first()).toBeVisible();
   });
+
+  test("onboarding buttons update the active setup panel", async ({ page }) => {
+    await page.goto("/onboarding");
+    await page.getByRole("button", { name: "Open", exact: true }).first().click();
+    await expect(
+      page
+        .getByRole("complementary")
+        .getByRole("heading", { name: "Invite the leadership team", exact: true }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Prepare", exact: true }).first().click();
+    await expect(page.getByText("20%")).toBeVisible();
+    await page.getByRole("button", { name: "Mark step prepared", exact: true }).click();
+    await expect(page.getByText("40%")).toBeVisible();
+  });
+
+  test("module primary actions navigate to setup", async ({ page }) => {
+    await page.goto("/assets");
+    await page.getByRole("link", { name: /upload files/i }).click();
+    await expect(page).toHaveURL(/\/onboarding\?step=import-data/);
+  });
 });

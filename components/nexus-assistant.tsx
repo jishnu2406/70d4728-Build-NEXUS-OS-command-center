@@ -35,6 +35,13 @@ export function NexusAssistant({ open }: { open: boolean }) {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
 
+  function addAssistantNote(content: string) {
+    setMessages((current) => [
+      ...current,
+      { id: crypto.randomUUID(), role: "assistant", content },
+    ]);
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const prompt = input.trim();
@@ -171,13 +178,43 @@ export function NexusAssistant({ open }: { open: boolean }) {
               />
               <div className="flex items-center justify-between">
                 <div className="flex gap-1">
-                  <Button aria-label="Attach file" type="button" variant="ghost" size="icon">
+                  <Button
+                    aria-label="Attach file"
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      addAssistantNote(
+                        "File uploads unlock after storage is connected in Setup > Import company data.",
+                      )
+                    }
+                  >
                     <Paperclip className="h-4 w-4" />
                   </Button>
-                  <Button aria-label="Voice input" type="button" variant="ghost" size="icon">
+                  <Button
+                    aria-label="Voice input"
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      addAssistantNote(
+                        "Voice input is ready to configure after browser microphone permission and AI voice preferences are enabled.",
+                      )
+                    }
+                  >
                     <Mic className="h-4 w-4" />
                   </Button>
-                  <Button aria-label="Insert brief" type="button" variant="ghost" size="icon">
+                  <Button
+                    aria-label="Insert brief"
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      setInput(
+                        "Create a launch checklist for a new MNC workspace with identity, team, modules, imports, integrations, and AI governance.",
+                      )
+                    }
+                  >
                     <FileText className="h-4 w-4" />
                   </Button>
                 </div>

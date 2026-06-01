@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { BadgeCent, CreditCard, FileText, Landmark } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -27,7 +28,12 @@ export function FinanceModule() {
         title="Connect finance only when the tenant is ready."
         description="Every MNC starts with zero invoices, zero client balances, and no imported forecast. Add Stripe, tax rules, currencies, approval limits, and accounting integrations during setup."
         action="Configure finance"
-        secondary={<Button variant="glass">Import invoices</Button>}
+        actionHref="/onboarding?step=finance"
+        secondary={
+          <Button asChild variant="glass">
+            <Link href="/onboarding?step=import-invoices">Import invoices</Link>
+          </Button>
+        }
       />
 
       <section className="grid gap-4 md:grid-cols-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity, Building2, Flag, Gauge, ShieldCheck, Users } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -24,10 +25,13 @@ export function AdminModule() {
           title="Platform control starts empty."
           description="Add MNC tenants only when each company is ready. This console has no preset organizations, users, revenue, or health scores."
           action="Create tenant"
+          actionHref="/onboarding?step=tenant"
           secondary={
-            <Button variant="glass">
-              <Flag className="h-4 w-4" />
-              Feature flags
+            <Button asChild variant="glass">
+              <Link href="/onboarding?step=feature-flags">
+                <Flag className="h-4 w-4" />
+                Feature flags
+              </Link>
             </Button>
           }
         />

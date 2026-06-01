@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +10,7 @@ export function EmptyState({
   title,
   description,
   action,
+  actionHref = "/onboarding",
   secondary,
   className,
 }: {
@@ -17,6 +19,7 @@ export function EmptyState({
   title: string;
   description: string;
   action?: string;
+  actionHref?: string;
   secondary?: React.ReactNode;
   className?: string;
 }) {
@@ -47,9 +50,11 @@ export function EmptyState({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {action ? (
-            <Button variant="primary">
-              {action}
-              <ArrowRight className="h-4 w-4" />
+            <Button asChild variant="primary">
+              <Link href={actionHref}>
+                {action}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
           ) : null}
           {secondary}

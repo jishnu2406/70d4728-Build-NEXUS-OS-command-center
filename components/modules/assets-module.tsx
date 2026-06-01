@@ -1,6 +1,7 @@
 "use client";
 
 import { FileArchive, FileSearch, History, ShieldCheck, Tags, UploadCloud } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,7 +15,12 @@ export function AssetsModule() {
         title="Upload the company’s first files, brand kit, and knowledge base."
         description="This library starts empty for every MNC. Import drawings, contracts, renders, templates, supplier records, standards, and brand assets when the tenant is ready."
         action="Upload files"
-        secondary={<Button variant="glass">Connect storage</Button>}
+        actionHref="/onboarding?step=import-data"
+        secondary={
+          <Button asChild variant="glass">
+            <Link href="/onboarding?step=integrations">Connect storage</Link>
+          </Button>
+        }
       />
 
       <Card className="rounded-[24px]">
